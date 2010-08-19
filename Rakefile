@@ -30,15 +30,20 @@ padrino_gems = [
 
 GEM_PATHS = padrino_gems.freeze
 
-def rake_command(command)
-  sh "#{Gem.ruby} -S rake #{command}", :verbose => true
+def rake_command(command, args=nil)
+  str_args = ""
+  if args
+    str_args = "[#{args}]"
+  end
+
+  sh "#{Gem.ruby} -S rake #{command}#{str_args}", :verbose => true
 end
 
 %w(install gemspec package).each do |name|
-  desc "Run #{name} for all projects"
-  task name do
+  desc "Run #{name} for all projects (rake #{name}['no_sudo'] runs command without sudo)"
+  task name, :args do |command, args|
     GEM_PATHS.each do |dir|
-      Dir.chdir(dir) { rake_command(name) }
+      Dir.chdir(dir) { rake_command(name, args[:args]) }
     end
   end
 end

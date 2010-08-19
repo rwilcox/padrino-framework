@@ -39,9 +39,14 @@ task :version do
   puts "Current version: #{gemspec.version}"
 end
 
-desc "Installs the gem locally"
-task :install => :package do
-  sudo_sh "gem install pkg/#{gemspec.name}-#{gemspec.version}"
+desc "Installs the gem locally (rake install['no_sudo'] to not use sudo to install (for RVM))"
+task :install, :sudo, :needs => [:package] do |command, args|
+  gem_command = "gem install pkg/#{gemspec.name}-#{gemspec.version}"
+  if args[:sudo] == "no_sudo"
+    sh gem_command
+  else
+    sudo_sh gem_command
+  end
 end
 
 desc "Release the gem"
